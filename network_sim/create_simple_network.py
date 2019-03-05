@@ -24,13 +24,13 @@ def main(n):
 	# 3) Get IP address and construct nodes for these containers
 	
 	# get bitcoind container info
-	bitoind_ip = bitcoind_container['NetworkSettings']['IPAddress']
+	bitoind_ip = low_level_client.inspect_container(bitcoind_container.id)['NetworkSettings']['IPAddress']
 	bitcoind_node = BitcoindNode(ip_address = bitoind_ip, node_id = "bitcoind", container = bitcoind_container)
 
 	# get lnd container info
 	lnd_nodes = []
 	for i in range(0,n):
-		lnd_node_ip = lnd_containers[i]['NetworkSettings']['IPAddress']
+		lnd_node_ip = low_level_client.inspect_container(lnd_containers[i].id)['NetworkSettings']['IPAddress']
 		lnd_nodes.append(LndNode(ip_address = lnd_node_ip, node_id = lnd_containers[i]["Id"], container = lnd_containers[i]))
 	return
 
