@@ -27,4 +27,4 @@ EXPOSE 28333
 VOLUME /root/.bitcoin
 
 ADD bitcoin.conf /root/.bitcoin/bitcoin.conf
-CMD ["./src/bitcoind" ,"-regtest" ,"-debug"]
+CMD ["./src/bitcoind" ,"-regtest" ,"-debug", "-rpcallowip=0.0.0.0/0","-rpcbind=0.0.0.0"]
