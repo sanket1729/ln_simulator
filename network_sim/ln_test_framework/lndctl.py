@@ -1,7 +1,7 @@
 # controller for bitcoind
 def regtest_context():
 	context = {}
-	context['cmd'] = "./ln-cli --network=regtest --no-macaroons "
+	context['cmd'] = "./lncli --network=regtest --no-macaroons "
 	return context
 
 def get_context(chain):
