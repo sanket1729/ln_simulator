@@ -14,6 +14,7 @@ def main(n):
 	bitcoind_container = client.containers.run('bitcoind-lnd', name = "bitcoind-backend",detach=True)
 	print("waiting 15 sec for bitcoind to start")
 	time.sleep(15)
+	print("Mining 150 blocks")
 	bitcoind_container.exec_run(generatetoaddress(150))
 	# 2) Create n instances of lnd
 	lnd_containers = []
