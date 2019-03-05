@@ -1,7 +1,7 @@
 import docker
 import sys
 
-from container import *
+from ln_test_framework.nodecontainer import *
 
 
 def main(n):
