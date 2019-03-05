@@ -1,7 +1,4 @@
-import docker
-client = docker.from_env()
-low_level_client = docker.APIClient()
-# Get all IP's corresponding to bitcoind and lnd's
+
 class DockerNode:
 	
 	def __init__(self, ip_address , node_id, container):
