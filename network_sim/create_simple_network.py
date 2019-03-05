@@ -4,6 +4,7 @@ import time
 
 from ln_test_framework.nodecontainer import *
 from ln_test_framework.bitcoindctl import *
+from ln_test_framework.lndctl import *
 
 def main(n):
 	client = docker.from_env()
@@ -38,6 +39,9 @@ def main(n):
 	for i in range(0, n):
 		print(lnd_nodes[i].node_id, lnd_nodes[i].ip_address)
 
+
+	temp = lnd_containers[0].exec_run(getnewaddress())
+	print(temp)
 	return
 
 if __name__ == "__main__":
