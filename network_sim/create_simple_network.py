@@ -31,7 +31,13 @@ def main(n):
 	lnd_nodes = []
 	for i in range(0,n):
 		lnd_node_ip = low_level_client.inspect_container(lnd_containers[i].id)['NetworkSettings']['IPAddress']
-		lnd_nodes.append(LndNode(ip_address = lnd_node_ip, node_id = lnd_containers[i]["Id"], container = lnd_containers[i]))
+		lnd_nodes.append(LndNode(ip_address = lnd_node_ip, node_id = lnd_containers[i].id, container = lnd_containers[i]))
+	
+	print(bitcoind_node.node_id, bitcoind_node.ip_address)
+
+	for i in range(0, n):
+		print(lnd_nodes[i].node_id, lnd_nodes[i].ip_address)
+
 	return
 
 if __name__ == "__main__":
