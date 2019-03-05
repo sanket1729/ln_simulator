@@ -31,7 +31,6 @@ def main(n):
 	for i in range(0,n):
 		lnd_node_ip = lnd_containers[i]['NetworkSettings']['IPAddress']
 		lnd_nodes.append(LndNode(ip_address = lnd_node_ip, node_id = lnd_containers[i]["Id"], container = lnd_containers[i]))
-
 	return
 
 if __name__ == "__main__":
