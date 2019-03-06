@@ -1,9 +1,9 @@
-import networkinitalizer
+import networkinitializer
 from ln_test_framework.lndctl import *
 
 def main():
 	num_nodes = 2
-	network = networkinitalizer.setup(num_nodes)
+	network = networkinitializer.setup(num_nodes)
 
 	bitcoind = network.bitcoind_node
 	lnd_nodes = network.lnd_nodes

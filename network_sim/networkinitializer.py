@@ -43,8 +43,8 @@ def setup(n, with_balance = False):
 	bitcoind_node = BitcoindNode(ip_address = bitoind_ip, node_id = "bitcoind", container = bitcoind_container)
 
 	# get lnd container info
-	time.sleep(5)
-	print("waiting 5 sec for lnd_nodes to start")
+	time.sleep(10)
+	print("waiting 10 sec for lnd_nodes to start")
 	
 	lnd_nodes = []
 	for i in range(0,n):
