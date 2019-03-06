@@ -19,3 +19,7 @@ def getinfo(chain='regtest'):
 def createconnection(node_to ,chain='regtest'):
 	context = get_context(chain)
 	return context['cmd'] + " connect " + node_to.pubkey + "@" + node_to.ip_address
+
+def walletbalance(chain = 'regtest'):
+	context = get_context(chain)
+	return context['cmd'] + " walletbalance"
