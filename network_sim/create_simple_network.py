@@ -36,7 +36,7 @@ def main(n):
 		lnd_nodes.append(LndNode(ip_address = lnd_node_ip, node_id = lnd_containers[i].id, container = lnd_containers[i]))
 	
 	print(bitcoind_node.node_id, bitcoind_node.ip_address)
-	sleep(5)
+	time.sleep(5)
 	for i in range(0, n):
 		print(lnd_nodes[i].node_id, lnd_nodes[i].ip_address)
 
