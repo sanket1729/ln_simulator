@@ -16,7 +16,8 @@ def main(n):
 	print("waiting 15 sec for bitcoind to start")
 	time.sleep(15)
 	print("Mining 150 blocks")
-	bitcoind_container.exec_run(generatetoaddress(150))
+	x = bitcoind_container.exec_run(generatetoaddress(150))
+	print(x)
 	# 2) Create n instances of lnd
 	lnd_containers = []
 	print("Starting lnd containers")
