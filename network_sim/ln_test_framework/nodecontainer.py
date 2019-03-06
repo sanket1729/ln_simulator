@@ -14,6 +14,7 @@ class BitcoindNode(DockerNode):
 
 class LndNode(DockerNode):
 
-	def __init__(self, ip_address, node_id, container, name = None):
+	def __init__(self, ip_address, node_id, container, pubkey, name = None):
 		super().__init__(ip_address, node_id, container)
 		self.name = name
+		self.pubkey = pubkey

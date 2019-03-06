@@ -11,3 +11,7 @@ def get_context(chain):
 def getnewaddress(chain='regtest'):
 	context = get_context(chain)
 	return context['cmd'] + " newaddress np2wkh" 
+
+def getinfo(chain='regtest'):
+	context = get_context(chain)
+	return context['cmd'] + " getinfo"

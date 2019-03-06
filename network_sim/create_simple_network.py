@@ -1,6 +1,7 @@
 import docker
 import sys
 import time
+import json
 
 from ln_test_framework.nodecontainer import *
 from ln_test_framework.bitcoindctl import *
@@ -13,7 +14,7 @@ def main(n):
 	# 1) create an instance of bitcoind
 	print("Starting bitcoind-backend")
 	bitcoind_container = client.containers.run('bitcoind-lnd', name = "bitcoind-backend",detach=True)
-	print("waiting 15 sec for bitcoind to start")
+	print("waiting 5 sec for bitcoind to start")
 	time.sleep(5)
 	print("Mining 150 blocks")
 	x = bitcoind_container.exec_run(generatetoaddress(150))
@@ -30,21 +31,22 @@ def main(n):
 	bitcoind_node = BitcoindNode(ip_address = bitoind_ip, node_id = "bitcoind", container = bitcoind_container)
 
 	# get lnd container info
+	time.sleep(5)
+	print("waiting 5 sec for lnd_nodes to start")
+	
 	lnd_nodes = []
 	for i in range(0,n):
+		exec_res = lnd_containers[0].exec_run(getnewaddress())
+		pubkey = json.loads(exec_res.output.decode('utf-8')).get('identity_pubkey')
+
 		lnd_node_ip = low_level_client.inspect_container(lnd_containers[i].id)['NetworkSettings']['IPAddress']
-		lnd_nodes.append(LndNode(ip_address = lnd_node_ip, node_id = lnd_containers[i].id, container = lnd_containers[i]))
+		lnd_nodes.append(LndNode(ip_address = lnd_node_ip, node_id = lnd_containers[i].id, container = lnd_containers[i], pubkey = pubkey))
 	
 	print(bitcoind_node.node_id, bitcoind_node.ip_address)
-	time.sleep(5)
 	for i in range(0, n):
 		print(lnd_nodes[i].node_id, lnd_nodes[i].ip_address)
 
-	addr = getnewaddress()
-	print(addr)
-	temp = lnd_containers[1].exec_run("./lncli --no-macaroons --network=regtest getinfo")
-	print(temp)
-	temp = lnd_containers[0].exec_run(addr)
+	temp = lnd_containers[0].exec_run(getnewaddress())
 	print(temp)
 	return
 
