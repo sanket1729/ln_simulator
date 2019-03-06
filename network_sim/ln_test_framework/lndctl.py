@@ -23,3 +23,15 @@ def createconnection(node_to ,chain='regtest'):
 def walletbalance(chain = 'regtest'):
 	context = get_context(chain)
 	return context['cmd'] + " walletbalance"
+
+def openchannel(node_to, amt, chain= 'regtest'):
+	context = get_context(chain)
+	return context['cmd'] + " openchannel --node_key="+node_to.pubkey +" --local_amt="+str(amt)
+
+def getinvoice(amt, chain = 'regtest'):
+	context = get_context(chain)
+	return context['cmd'] + " addinvoice --amt="+str(amt)
+
+def sendpayment(pay_req, chain = 'regtest')
+	context = get_context(chain)
+	return context['cmd'] + " sendpayment --pay_req="pay_req

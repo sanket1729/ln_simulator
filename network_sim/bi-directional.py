@@ -1,20 +1,33 @@
 import networkinitializer
 from ln_test_framework.lndctl import *
+from ln_test_framework.utils import *
 
 def main():
 	num_nodes = 2
-	network = networkinitializer.setup(num_nodes)
+	network = networkinitializer.setup(num_nodes, with_balance = True)
 
 	bitcoind = network.bitcoind_node
 	lnd_nodes = network.lnd_nodes
 
-	# create connection
-	res = lnd_nodes[1].container.exec_run(createconnection(lnd_nodes[0]))
+	alice = lnd_nodes[0]
+	bob = lnd_nodes[1]
+
+	res = bob.container.exec_run(createconnection(alice))
 	print(res)
+	res = bob.container.exec_run(openchannel(alice, 100000))
+	print(res)
+	# confirm the funding transactions; only 3 are needed for lnd
+	res = bitcoind.container.exec_run(generatetoaddress(6))
+	print(res)
+	
+	# Get invoice from alice
+	res = alice.container.exec_run(getinvoice(1000))
+	pay_req = get_attr(res, 'pay_req')
 
-	# create funding transaction
-
-	# send payments
+	# Send payment back
+	res = bob.container.exec_run(sendpayment(pay_req))
+	print(res)
+	return
 
 if __name__ == "__main__":
 	main()
