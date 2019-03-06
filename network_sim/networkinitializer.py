@@ -10,6 +10,11 @@ from ln_test_framework.lndctl import *
 from ln_test_framework.lnnetwork import *
 from ln_test_framework.utils import *
 
+def printnodebalance(node):
+	exec_res = node.exec_run(walletbalance())
+	print(exec_res)
+	print(get_attr(exec_res, 'total_balance'), "for node ", node.name)
+
 def setup(n, with_balance = False):
 	client = docker.from_env()
 	low_level_client = docker.APIClient()
@@ -59,16 +64,15 @@ def setup(n, with_balance = False):
 	if with_balance:
 		print("Loading nodes with balance, Initial Balance:")
 		for node in lnd_containers:
-			exec_res = node.exec_run(walletbalance())
-			print(get_attr(exec_res, 'total_balance'), "for node ", node.name)
+			printnodebalance(node)
 			exec_res = node.exec_run(getnewaddress())
 			addr = json.loads(exec_res.output.decode('utf-8')).get('address')
 			bitcoind_container.exec_run(generatetoaddress(25, address=addr))
 
 		#generate blocks so the funds created above mature
 		bitcoind_container.exec_run(generatetoaddress(101))
-		exec_res = node.exec_run(walletbalance())
-		print(get_attr(exec_res, 'total_balance'), "for node ", node.name)
+		printnodebalance(lnd_containers[0])
+		printnodebalance(lnd_containers[1])
 	return net
 
 if __name__ == "__main__":
