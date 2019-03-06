@@ -1,6 +1,7 @@
 import networkinitializer
 from ln_test_framework.lndctl import *
 from ln_test_framework.utils import *
+from ln_test_framework.bitcoindctl import *
 
 def main():
 	num_nodes = 2
