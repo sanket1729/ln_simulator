@@ -41,6 +41,8 @@ def main(n):
 
 	addr = getnewaddress()
 	print(addr)
+	temp = lnd_containers[1].exec_run("./lncli --no-macaroons --network=regtest getinfo")
+	print(temp)
 	temp = lnd_containers[0].exec_run(addr)
 	print(temp)
 	return
