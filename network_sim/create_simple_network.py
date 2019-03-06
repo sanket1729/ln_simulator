@@ -39,8 +39,9 @@ def main(n):
 	for i in range(0, n):
 		print(lnd_nodes[i].node_id, lnd_nodes[i].ip_address)
 
-
-	temp = lnd_containers[0].exec_run(getnewaddress())
+	addr = getnewaddress()
+	print(addr)
+	temp = lnd_containers[0].exec_run(addr)
 	print(temp)
 	return
 
