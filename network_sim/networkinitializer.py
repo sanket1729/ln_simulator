@@ -71,6 +71,7 @@ def setup(n, with_balance = False):
 
 		#generate blocks so the funds created above mature
 		bitcoind_container.exec_run(generatetoaddress(101))
+		time.sleep(1)
 		printnodebalance(lnd_containers[0])
 		printnodebalance(lnd_containers[1])
 	return net
