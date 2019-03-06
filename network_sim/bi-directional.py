@@ -9,7 +9,7 @@ def main():
 	lnd_nodes = network.lnd_nodes
 
 	# create connection
-	res = lnd_nodes[1].container.exec_run(createconnection())
+	res = lnd_nodes[1].container.exec_run(createconnection(lnd_nodes[0]))
 	print(res)
 
 	# create funding transaction
