@@ -10,9 +10,6 @@ from ln_test_framework.lndctl import *
 from ln_test_framework.lnnetwork import *
 from ln_test_framework.utils import *
 
-def printnodebalance(node):
-	exec_res = node.exec_run(walletbalance())
-	print(get_attr(exec_res, 'total_balance'), "for node ", node.name)
 
 def setup(n, with_balance = False):
 	client = docker.from_env()

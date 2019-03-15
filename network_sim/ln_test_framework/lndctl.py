@@ -32,6 +32,10 @@ def getinvoice(amt, chain = 'regtest'):
 	context = get_context(chain)
 	return context['cmd'] + " addinvoice --amt="+str(amt)
 
+def listchannels(chain = 'regtest'):
+	context = get_context(chain)
+	return context['cmd'] + " listchannels"
+
 def sendpayment(pay_req, chain = 'regtest'):
 	context = get_context(chain)
 	return context['cmd'] + " sendpayment -f --pay_req="+pay_req
