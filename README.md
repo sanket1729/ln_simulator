@@ -26,7 +26,7 @@ docker build -t lnd ./lnd/
 python3 ./network_sim/ln_test_framework/stop_all_containers.py
 python3 ./network_sim/bi-directional.py
 ```
-
+You may need to change the IP addresses of nodes of bitcoind and lnd nodes. You can run the nodes once, check the address `bitcoind` is alloted by docker and use that in config for lnd and bitcoind. TODO: A better solution for this problem
 
 # ln_simulator
 
