@@ -11,7 +11,7 @@ from ln_test_framework.lnnetwork import *
 from ln_test_framework.utils import *
 
 
-def setup(n, with_balance = False):
+def setup(n, m=0,with_balance = False):
 	client = docker.from_env()
 	low_level_client = docker.APIClient()
 
@@ -25,11 +25,14 @@ def setup(n, with_balance = False):
 	# print(x)
 	
 
-	# 2) Create n instances of lnd
+	# 2) Create n instances of lnd and m griefing instances
 	lnd_containers = []
 	print("Starting lnd containers")
 	for i in range(0, n):
 		lnd_containers.append(client.containers.run('lnd', name = "ln_node-" + str(i),detach=True))
+
+	for i in range(0, m):
+		lnd_containers.append(client.containers.run('lnd-grief', name = "ln_node_grief-" + str(i),detach=True))
 	
 
 	# 3) Get IP address and construct nodes for these containers
@@ -43,7 +46,7 @@ def setup(n, with_balance = False):
 	print("waiting 10 sec for lnd_nodes to start")
 	
 	lnd_nodes = []
-	for i in range(0,n):
+	for i in range(0,n+m):
 		exec_res = lnd_containers[i].exec_run(getinfo())
 		pubkey = json.loads(exec_res.output.decode('utf-8')).get('identity_pubkey')
 
@@ -52,7 +55,7 @@ def setup(n, with_balance = False):
 	
 	#Print all info sanity
 	print(bitcoind_node.node_id, bitcoind_node.ip_address)
-	for i in range(0, n):
+	for i in range(0, n+m):
 		print(lnd_nodes[i].node_id, lnd_nodes[i].ip_address, lnd_nodes[i].pubkey)
 
 	net = LNnetwork(bitcoind_node, lnd_nodes)
@@ -68,8 +71,8 @@ def setup(n, with_balance = False):
 		#generate blocks so the funds created above mature
 		bitcoind_container.exec_run(generatetoaddress(101))
 		time.sleep(1)
-		printnodebalance(lnd_containers[0])
-		printnodebalance(lnd_containers[1])
+		# printnodebalance(lnd_containers[0])
+		# printnodebalance(lnd_containers[1])
 	return net
 
 if __name__ == "__main__":
