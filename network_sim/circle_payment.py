@@ -4,7 +4,6 @@ from ln_test_framework.utils import *
 from ln_test_framework.bitcoindctl import *
 import time
 import json
-# def find_last_hop(first_node, last_node):
 """
 '{
     "routes": [
@@ -49,6 +48,45 @@ import json
     ]
 }'
 """
+def make_hop(pub_key, chan_id, total_amt):
+	hop = {}
+	hop['pub_key'] = pub_key
+	hop['chan_id'] = chan_id
+	hop['amt_to_forward'] = str(total_amt)
+	hop['expiry'] = 400
+	hop['amt_to_forward_msat'] = str(total_amt*1000)
+	hop['fee'] = 0
+	hop['fee_msat'] = 0
+	return hop
+
+def create_all_but_one_edge_circle_route(routes, total_amt):
+	del routes['routes'][0]['total_time_lock']
+	#Pay the fees per route
+	i = 0
+	for hop in routes['routes'][0]['hops']:
+		i = i + 1
+		hop['expiry'] = 400
+		hop['fee'] = str(1)
+		hop['fee_msat'] = str(1000)
+
+		hop['amt_to_forward'] = str(total_amt - i)
+		hop['amt_to_forward_msat'] = str(1000*(total_amt - i))
+
+	routes['routes'][0]['total_fees'] = str(len(routes['routes'][0]['hops']))
+	routes['routes'][0]['total_amt'] = str(total_amt)
+	routes['routes'][0]['total_amt_msat'] = str(total_amt*1000)
+	routes['routes'][0]['total_fees_msat'] = str(len(routes['routes'][0]['hops'])*1000)
+	return routes
+
+def find_last_hop(first_node, last_node):
+	# List all channels
+	res = first_node.container.exec_run(listchannels())
+	channels = json.loads(res.output.decode('utf-8'))
+
+	for hop in channels['channels']:
+		if hop['pub_key'] == last_node.pubkey:
+			return make_hop(hop['pub_key'], hop['chan_id'])
+	raise Execption('last node not found error')
 
 def main():
 	num_nodes = 3
@@ -112,14 +150,15 @@ def main():
 	routes = json.loads(res.output.decode('utf-8'))
 
 	# find_last_hop(); add last hop to routes
-	
+	print(routes)
+	routes = create_all_but_one_edge_circle_route(routes, 1002)
+	print(routes)
+	last_hop = find_last_hop(alice, carol)
+	routes['routes'][0]['hops'].append(last_hop)
+	print(routes)
 	# Feed the output of querypath and add last edge to the paths to complete the circle. 
 	# Send payment back
-	print(routes)
-	# print(sendtoroute(payment_hash, str(routes)))
-	del routes['routes'][0]['total_time_lock']
-	routes['routes'][0]['hops'][0]['expiry'] = 381
-	routes['routes'][0]['hops'][1]['expiry'] = 381 
+	# print(sendtoroute(payment_hash, str(routes))) 
 	print(sendtoroute(payment_hash, str(routes)))
 	print(sendtoroute(payment_hash, json.dumps(routes)))
 	res = alice.container.exec_run(sendtoroute(payment_hash, "\'" + json.dumps(routes) + "\'"))
