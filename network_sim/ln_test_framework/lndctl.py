@@ -44,10 +44,10 @@ def grief(chain = 'regtest'):
 	context = get_context(chain)
 	return context['cmd'] + " grief"
 
-def qeuryroutes(node_to, amt, chain = 'regtest'):
+def queryroutes(node_to, amt, chain = 'regtest'):
 	context = get_context(chain)
-	return context['cmd'] + " qeuryroutes " + node_to.pubkey + " " + str(amt)
+	return context['cmd'] + " queryroutes " + node_to.pubkey + " " + str(amt)
 
 def sendtoroute(payment_hash, routes, chain = 'regtest'):
 	context = get_context(chain)
-	return context['cmd'] + " qeuryroutes --payment_hash=" + payment_hash + " ---routes=" + routes 	
+	return context['cmd'] + " sendtoroute --payment_hash=" + payment_hash + " --routes=" + routes 	

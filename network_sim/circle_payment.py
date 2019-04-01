@@ -3,6 +3,8 @@ from ln_test_framework.lndctl import *
 from ln_test_framework.utils import *
 from ln_test_framework.bitcoindctl import *
 import time
+import json
+# def find_last_hop(first_node, last_node):
 """
 '{
     "routes": [
@@ -107,11 +109,20 @@ def main():
 
 	# We need to parse the structure of the queryroutes 
 	res = alice.container.exec_run(queryroutes(carol, 1000))
-	routes = res.output.decode('utf-8')
+	routes = json.loads(res.output.decode('utf-8'))
+
+	# find_last_hop(); add last hop to routes
 	
 	# Feed the output of querypath and add last edge to the paths to complete the circle. 
 	# Send payment back
-	res = alice.container.exec_run(sendtoroute(payment_hash, routes))
+	print(routes)
+	# print(sendtoroute(payment_hash, str(routes)))
+	del routes['routes'][0]['total_time_lock']
+	routes['routes'][0]['hops'][0]['expiry'] = 381
+	routes['routes'][0]['hops'][1]['expiry'] = 381 
+	print(sendtoroute(payment_hash, str(routes)))
+	print(sendtoroute(payment_hash, json.dumps(routes)))
+	res = alice.container.exec_run(sendtoroute(payment_hash, "\'" + json.dumps(routes) + "\'"))
 	print(res.output.decode('utf-8'))
 
 	bob.container.exec_run(listchannels())
