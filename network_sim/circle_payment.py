@@ -3,9 +3,50 @@ from ln_test_framework.lndctl import *
 from ln_test_framework.utils import *
 from ln_test_framework.bitcoindctl import *
 import time
-
-def parse_queryroutes():
-	
+"""
+'{
+    "routes": [
+        {
+            "total_fees": "1",
+            "total_amt": "2",
+            "hops": [
+                {
+                    "chan_id": "359540302348288",
+                    "chan_capacity": "100000",
+                    "amt_to_forward": "1",
+                    "fee": "1",
+                    "expiry": 381,
+                    "amt_to_forward_msat": "1000",
+                    "fee_msat": "1000",
+                    "pub_key": "02d35cb4e7552382ba77f359e0590dad101c05ac746a0ab8bb6ada12b730bacf15"
+                },
+                {
+                    "chan_id": "359540302479360",
+                    "chan_capacity": "100000",
+                    "amt_to_forward": "1",
+                    "fee": "0",
+                    "expiry": 381,
+                    "amt_to_forward_msat": "1000",
+                    "fee_msat": "0",
+                    "pub_key": "02f8c14bdf90d49dae88c4573f7d70bfb2c4d3bc25401894fb08f4cfc565924d8b"
+                },
+                {
+                    "chan_id": "359540302413824",
+                    "chan_capacity": "100000",
+                    "amt_to_forward": "1",
+                    "fee": "0",
+                    "expiry": 381,
+                    "amt_to_forward_msat": "1000",
+                    "fee_msat": "0",
+                    "pub_key": "0217531a8acb54b2fad4215f318f82dea72976fbb7d8a600806bea5b97c8e5f84a"
+                }
+            ],
+            "total_fees_msat": "1000",
+            "total_amt_msat": "2000"
+        }
+    ]
+}'
+"""
 
 def main():
 	num_nodes = 3
@@ -66,11 +107,11 @@ def main():
 
 	# We need to parse the structure of the queryroutes 
 	res = alice.container.exec_run(queryroutes(carol, 1000))
-	print(res.output.decode('utf-8'))
+	routes = res.output.decode('utf-8')
 	
 	# Feed the output of querypath and add last edge to the paths to complete the circle. 
 	# Send payment back
-	res = alice.container.exec_run(sendpayment(pay_req))
+	res = alice.container.exec_run(sendtoroute(payment_hash, routes))
 	print(res.output.decode('utf-8'))
 
 	bob.container.exec_run(listchannels())
