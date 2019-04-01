@@ -16,6 +16,9 @@ def main():
 	bob = lnd_nodes[2]
 	carol = lnd_nodes[1]
 
+	#Add a greifing behaviour to bob
+	res = bob.container.exec_run(grief())
+	print(res.output.decode('utf-8'))
 
 	# Open connection from Alice to Bob and Bob to Carol.
 
@@ -39,6 +42,8 @@ def main():
 	# confirm the funding transactions; only 3 are needed for lnd
 	bitcoind.container.exec_run(generatetoaddress(6))
 
+	time.sleep(3)
+
 	res = bob.container.exec_run(listchannels())
 	print(res.output.decode('utf-8'))
 	res = alice.container.exec_run(listchannels())
@@ -55,13 +60,17 @@ def main():
 	print(pay_req)
 
 	# Send payment back
-	res = alice.container.exec_run(sendpayment(pay_req))
+	res = alice.container.exec_run(sendpayment(pay_req), detach = True)
+
+	time.sleep(2)
+	# print(res.output.decode('utf-8'))
+
+	res = bob.container.exec_run(listchannels())
 	print(res.output.decode('utf-8'))
-
-	bob.container.exec_run(listchannels())
-	alice.container.exec_run(listchannels())
-	carol.container.exec_run(listchannels())
-
+	res = alice.container.exec_run(listchannels())
+	print(res.output.decode('utf-8'))
+	res = carol.container.exec_run(listchannels())
+	print(res.output.decode('utf-8'))
 	return
 
 if __name__ == "__main__":

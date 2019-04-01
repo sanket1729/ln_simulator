@@ -39,3 +39,15 @@ def listchannels(chain = 'regtest'):
 def sendpayment(pay_req, chain = 'regtest'):
 	context = get_context(chain)
 	return context['cmd'] + " sendpayment -f --pay_req="+pay_req
+
+def grief(chain = 'regtest'):
+	context = get_context(chain)
+	return context['cmd'] + " grief"
+
+def qeuryroutes(node_to, amt, chain = 'regtest'):
+	context = get_context(chain)
+	return context['cmd'] + " qeuryroutes " + node_to.pubkey + " " + str(amt)
+
+def sendtoroute(payment_hash, routes, chain = 'regtest'):
+	context = get_context(chain)
+	return context['cmd'] + " qeuryroutes --payment_hash=" + payment_hash + " ---routes=" + routes 	
