@@ -4,7 +4,7 @@ from ln_test_framework.utils import *
 from ln_test_framework.bitcoindctl import *
 import time
 import json
-import copy
+# def find_last_hop(first_node, last_node):
 """
 '{
     "routes": [
@@ -49,86 +49,6 @@ import copy
     ]
 }'
 """
-delta_cltv = 50
-def make_hop(pub_key, chan_id, total_amt, expiry):
-	hop = {}
-	hop['pub_key'] = pub_key
-	hop['chan_id'] = chan_id
-	hop['amt_to_forward'] = str(total_amt)
-	hop['expiry'] = expiry
-	hop['amt_to_forward_msat'] = str(total_amt*1000)
-	hop['fee'] = 0
-	hop['fee_msat'] = 0
-	return hop
-
-def create_all_but_one_edge_circle_route(routes, total_amt, height):
-	final_lock_time = height + (len(routes['routes'][0]['hops']) + 1)*delta_cltv
-	routes['routes'][0]['total_time_lock'] = final_lock_time
-	#Pay the fees per route
-	i = 0
-	for hop in routes['routes'][0]['hops']:
-		i = i + 1
-		hop['expiry'] = final_lock_time - delta_cltv*i
-		hop['fee'] = str(1)
-		hop['fee_msat'] = str(1000)
-
-		hop['amt_to_forward'] = str(total_amt - i)
-		hop['amt_to_forward_msat'] = str(1000*(total_amt - i))
-
-	routes['routes'][0]['total_fees'] = str(len(routes['routes'][0]['hops']))
-	routes['routes'][0]['total_amt'] = str(total_amt)
-	routes['routes'][0]['total_amt_msat'] = str(total_amt*1000)
-	routes['routes'][0]['total_fees_msat'] = str(len(routes['routes'][0]['hops'])*1000)
-	return routes
-
-def find_last_hop(first_node, last_node, total_amt, expiry):
-	# List all channels
-	res = first_node.container.exec_run(listchannels())
-	channels = json.loads(res.output.decode('utf-8'))
-
-	for hop in channels['channels']:
-		if hop['remote_pubkey'] == last_node.pubkey:
-			return make_hop(first_node.pubkey, hop['chan_id'], total_amt, expiry)
-	raise Execption('last node not found error')
-
-def amplify_routes(routes, amt, num_loops, height):
-	total_fees = len(routes['routes'][0]['hops'])*num_loops - 1
-	total_amt = amt + total_fees
-	final_lock_time = height + len(routes['routes'][0]['hops'])*num_loops*delta_cltv
-	routes['routes'][0]['total_time_lock'] = final_lock_time
-	#Pay the fees per route
-	i = 0
-	hops = routes['routes'][0]['hops']
-	hops_copy = copy.deepcopy(hops)
-	routes['routes'][0]['hops'].clear()
-	# hops_copy = copy.deepcopy(hops)
-
-	for loop_count in range(0, num_loops):
-		hops_copy_temp = copy.deepcopy(hops_copy)
-		for hop in hops_copy_temp:
-			i = i + 1
-			hop['expiry'] = final_lock_time - delta_cltv*i
-			hop['fee'] = str(1)
-			hop['fee_msat'] = str(1000)
-
-			hop['amt_to_forward'] = str(total_amt - i)
-			hop['amt_to_forward_msat'] = str(1000*(total_amt - i))
-		routes['routes'][0]['hops'].extend(hops_copy_temp)
-
-	dest = routes['routes'][0]['hops'][i-1]
-	dest['amt_to_forward'] = str(amt)
-	dest['amt_to_forward_msat'] = str(amt*1000)
-	dest['fee'] = str(0)
-	dest['fee_msat'] = str(0)
-	dest['expiry']+=delta_cltv	
-
-	routes['routes'][0]['total_fees'] = str(total_fees)
-	routes['routes'][0]['total_amt'] = str(total_amt)
-	routes['routes'][0]['total_amt_msat'] = str(total_amt*1000)
-	routes['routes'][0]['total_fees_msat'] = str(total_fees*1000)
-	return routes
-
-
 
 def main():
 	num_nodes = 3
@@ -182,32 +102,24 @@ def main():
 	# THis is wait time for network so that all payments are along the same route
 	time.sleep(15)
 
-	invoice_amt = 100
-	res = alice.container.exec_run(getinvoice(invoice_amt))
+	res = carol.container.exec_run(getinvoice(1000))
 	pay_req = get_attr(res, 'pay_req')
 	payment_hash = get_attr(res, 'r_hash')
 	print(payment_hash)
 
 	# We need to parse the structure of the queryroutes 
-	res = alice.container.exec_run(queryroutes(carol, invoice_amt))
+	res = alice.container.exec_run(queryroutes(carol, 1000))
 	routes = json.loads(res.output.decode('utf-8'))
 
 	# find_last_hop(); add last hop to routes
-	print(routes)
-	#Change this later
-	exec_res = alice.container.exec_run(getinfo())
-	height = int(json.loads(exec_res.output.decode('utf-8')).get('block_height'))
-
-	routes = create_all_but_one_edge_circle_route(routes, invoice_amt + 2, height)
-	print(routes)
-	last_hop = find_last_hop(alice, carol, invoice_amt, height + delta_cltv)
-	routes['routes'][0]['hops'].append(last_hop)
-	print(routes)
-	routes = amplify_routes(routes, invoice_amt, 2, height)
-	print(routes)
+	
 	# Feed the output of querypath and add last edge to the paths to complete the circle. 
 	# Send payment back
-	# print(sendtoroute(payment_hash, str(routes))) 
+	print(routes)
+	# print(sendtoroute(payment_hash, str(routes)))
+	del routes['routes'][0]['total_time_lock']
+	routes['routes'][0]['hops'][0]['expiry'] = 381
+	routes['routes'][0]['hops'][1]['expiry'] = 381 
 	print(sendtoroute(payment_hash, str(routes)))
 	print(sendtoroute(payment_hash, json.dumps(routes)))
 	res = alice.container.exec_run(sendtoroute(payment_hash, "\'" + json.dumps(routes) + "\'"))
