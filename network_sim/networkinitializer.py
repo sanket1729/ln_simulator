@@ -63,7 +63,7 @@ def setup(n, m=0,with_balance = False):
 	if with_balance:
 		print("Loading nodes with balance, Initial Balance:")
 		for node in lnd_containers:
-			printnodebalance(node)
+			# printnodebalance(node)
 			exec_res = node.exec_run(getnewaddress())
 			addr = json.loads(exec_res.output.decode('utf-8')).get('address')
 			bitcoind_container.exec_run(generatetoaddress(25, address=addr))

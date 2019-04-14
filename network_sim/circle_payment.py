@@ -79,6 +79,14 @@ def create_all_but_one_edge_circle_route(routes, total_amt, height):
 	routes['routes'][0]['total_amt'] = str(total_amt)
 	routes['routes'][0]['total_amt_msat'] = str(total_amt*1000)
 	routes['routes'][0]['total_fees_msat'] = str(len(routes['routes'][0]['hops'])*1000)
+
+	dest = routes['routes'][0]['hops'][i-1]
+	dest['amt_to_forward'] = str(amt)
+	dest['amt_to_forward_msat'] = str(amt*1000)
+	dest['fee'] = str(0)
+	dest['fee_msat'] = str(0)
+	dest['expiry']+=delta_cltv
+
 	return routes
 
 def find_last_hop(first_node, last_node, total_amt, expiry):

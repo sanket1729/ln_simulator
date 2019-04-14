@@ -57,7 +57,7 @@ fee_rate_milli_msat = 1
 
 
 def calc_fee(base_fee_msat, fee_rate_milli_msat , amt):
-	print(amt)
+	# print(amt)
 	return base_fee_msat + (amt*fee_rate_milli_msat)//1000000
 
 
@@ -151,21 +151,21 @@ def main():
 
 
 	res = bob.container.exec_run(sendpayment(pay_req))
-	print(res.output.decode('utf-8'))
+	# print(res.output.decode('utf-8'))
 
 	# Step 2: Payment inference using binary search
 	invoice_amt = 100
 	res = dave.container.exec_run(getinvoice(invoice_amt))
 	pay_req = get_attr(res, 'pay_req')
 	payment_hash = get_attr(res, 'r_hash')
-	print(payment_hash)
+	# print(payment_hash)
 
 	# We need to parse the structure of the queryroutes 
 	res = alice.container.exec_run(queryroutes(dave, invoice_amt))
 	routes = json.loads(res.output.decode('utf-8'))
 
 	# find_last_hop(); add last hop to routes
-	print(routes)
+	# print(routes)
 	#Change this later
 	exec_res = alice.container.exec_run(getinfo())
 	height = int(json.loads(exec_res.output.decode('utf-8')).get('block_height'))
@@ -178,8 +178,6 @@ def main():
 		payment_hash = secrets.token_hex(32)
 		new_route = create_all_but_one_edge_circle_route(routes, amt, height)
 		res = alice.container.exec_run(sendtoroute(payment_hash, "\'" + json.dumps(new_route) + "\'"))
-		# print(new_route)
-		# print(res.output.decode('utf-8'))
 		assert get_attr(res, 'payment_error') != ""
 		assert get_attr(res, 'payment_preimage') == ""
 		
@@ -189,6 +187,7 @@ def main():
 			high = amt
 
 	print(low, high)
+	print("The maximum balance which can be sent via this channel is " + str(low - 1 ))
 	return
 
 if __name__ == "__main__":
