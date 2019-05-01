@@ -4,9 +4,16 @@ def regtest_context():
 	context['cmd'] = "./lncli --network=regtest --no-macaroons "
 	return context
 
+def testnet_source_context():
+	context = {}
+	context['cmd'] = "./lncli --no-macaroons --network=testnet --rpcserver=localhost:10011"
+	return context
+
 def get_context(chain):
 	if chain == 'regtest':
 		return regtest_context()
+	if chain == 'source_testnet':
+		return testnet_source_context()
 
 def getnewaddress(chain='regtest'):
 	context = get_context(chain)
@@ -50,4 +57,4 @@ def queryroutes(node_to, amt, chain = 'regtest'):
 
 def sendtoroute(payment_hash, routes, chain = 'regtest'):
 	context = get_context(chain)
-	return context['cmd'] + " sendtoroute --payment_hash=" + payment_hash + " --routes=" + routes 	
+	return context['cmd'] + " sendtoroute --payment_hash=" + payment_hash + " --routes=" + routes

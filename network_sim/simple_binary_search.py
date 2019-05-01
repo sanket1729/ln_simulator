@@ -187,7 +187,7 @@ def main():
 			high = amt
 
 	print(low, high)
-	print("The maximum balance which can be sent via this channel is " + str(low - 1 ))
+	print("The maximum balance which can be sent via bob-carol channel is " + str(low - 1 ))
 	return
 
 if __name__ == "__main__":
