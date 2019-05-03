@@ -9,6 +9,7 @@ import random
 import secrets
 import docker
 from ast import literal_eval
+import networkx as nx
 
 client = docker.from_env()
 
@@ -115,6 +116,87 @@ def generate_path(send_amt, path, source):
 	ret['routes'] = routes
     
 	return ret
+
+def get_path(G, s, t, num):
+    paths = []
+
+    head = 0
+    tail = 0
+    q = []
+
+    q.append(([s], []))
+    tail += 1
+
+    while head < tail and len(paths) < num:
+        _nodes, _edges = q[head]
+        end_node = _nodes[-1]
+        head += 1
+
+        for edge in G.edges(end_node, data=True):
+            y = edge[1]
+            if y == t:
+                edges = _edges.copy()
+                edges.append(edge)
+                paths.append(edges)
+                if len(paths) >= num:
+                    break
+            elif y not in _nodes:
+                nodes = _nodes.copy()
+                nodes.append(y)
+                edges = _edges.copy()
+                edges.append(edge)
+                q.append((nodes, edges))
+                tail += 1
+
+    return paths
+
+def build():
+    f = open('../data/testnet/2019_5_2_8_42_5.json', 'r')
+    data = json.loads(f.read())
+    nodes = data['nodes']
+    channels = data['edges']
+
+    G = nx.MultiDiGraph()
+
+    for node in nodes:
+        G.add_nodes_from([(node['pub_key'], node)])
+
+    for channel in channels:
+        channel_id = channel['channel_id']
+        chan_point = channel['chan_point']
+        last_update = channel['last_update']
+        channel['capacity'] = int(channel['capacity'])
+        capacity = channel['capacity']
+
+        node1_pub = channel['node1_pub']
+        node2_pub = channel['node2_pub']
+
+        node1_policy = channel['node1_policy']
+        node2_policy = channel['node2_policy']
+
+        G.add_edge(node1_pub, node2_pub, fee_policy=node1_policy, channel_id=channel_id, chan_point=chan_point, last_update=last_update, capacity=capacity)
+        G.add_edge(node2_pub, node1_pub, fee_policy=node2_policy, channel_id=channel_id, chan_point=chan_point, last_update=last_update, capacity=capacity)
+
+    nodes = ['02c7d9597510a71a33356c7c5cd1bc627e2fd348f73044183f97c5c81db76e38fb',
+             '03a13a469bae4785e27fae24e7664e648cfdb976b97f95c694dea5e55e7d302846',
+             '0270685ca81a8e4d4d01beec5781f4cc924684072ae52c507f8ebe9daf0caaab7b',
+             '030d815d7fe692edf238fa07aaad9e33da712e710033b7f5be3fc8f1386ea48673']
+    path = []
+    for i in range(len(nodes) - 1):
+        u = nodes[i]
+        v = nodes[i + 1]
+        edge = G.get_edge_data(u, v)[0]
+        # edge = G.get_edge_data(v, u)[0]
+        print(edge)
+        path.append((u, v, edge))
+
+    print(generate_path(1001, path))
+
+    s = '02c7d9597510a71a33356c7c5cd1bc627e2fd348f73044183f97c5c81db76e38fb'
+    t = '030d815d7fe692edf238fa07aaad9e33da712e710033b7f5be3fc8f1386ea48673'
+
+    num = 3
+    return get_path(G, s, t, num)
 
 def main():
 	source = get_source()
