@@ -71,49 +71,50 @@ def generate_path(send_amt, path, source):
 	total_amt_msat = send_amt * milli
 	total_fees_msat = 0
 
-	i = 0
-	for edge in reversed(path):
-		u, v, attr = edge
+	hops = []
+	for i in range(len(path)):
+		hops.append({})
 
-		fee_policy = attr['fee_policy']
-
-		min_htlc = int(fee_policy['min_htlc'])
-		cltv += min_htlc
-
-		fee_base_msat = int(fee_policy['fee_base_msat'])
-		fee_rate_milli_msat = int(fee_policy['fee_rate_milli_msat'])
-
+	flag = False
+	for i in reversed(range(len(path))):
 		fee_msat = 0
-		if i > 0:
+		hops[i]['chan_id'] = path[i][2]['channel_id']
+		hops[i]['chan_capacity'] = path[i][2]['capacity']
+		if not flag:
+
+			flag = True
+		else:
+			fee_policy = path[i + 1][2]['fee_policy']
+
+			min_htlc = int(fee_policy['min_htlc'])
+			cltv += min_htlc
+
+			fee_base_msat = int(fee_policy['fee_base_msat'])
+			fee_rate_milli_msat = int(fee_policy['fee_rate_milli_msat'])
 			fee_msat = calc_fee(total_amt_msat, fee_base_msat, fee_rate_milli_msat)
 
-		fee_sat = fee_msat // milli
-
-		hop = {}
-		hop['chan_id'] = attr['channel_id']
-		hop['chan_capacity'] = attr['capacity']
-		hop['amt_to_forward'] = total_amt_msat // milli
-		hop['fee'] = fee_sat
-		hop['expiry'] = cltv
-		hop['amt_to_forward_msat'] = total_amt_msat
-		hop['fee_msat'] = fee_msat
-		hop['pub_key'] = u
-
-		hops.append(hop)
+		hops[i]['amt_to_forward'] = total_amt_msat // milli
+		hops[i]['fee'] = fee_msat // milli
+		hops[i]['expiry'] = cltv
+		hops[i]['amt_to_forward_msat'] = total_amt_msat
+		hops[i]['fee_msat'] = fee_msat
+		hops[i]['pub_key'] = path[i][1]
 
 		total_fees_msat += fee_msat
-		total_amt_msat += total_fees_msat
-
-		i += 1
+		total_amt_msat += fee_msat
     
 	routes = {}
+	routes['total_time_lock'] = cltv + path[0][2]['fee_policy']['min_htlc']
 	routes['total_fees'] = total_fees_msat // milli
 	routes['total_amt'] = total_amt_msat // milli
 	routes['hops'] = hops
 	routes['total_fees_msat'] = total_fees_msat
 	routes['total_amt_msat'] = total_amt_msat
+
+	ret = {}
+	ret['routes'] = routes
     
-	return routes
+	return ret
 
 def main():
 	source = get_source()
@@ -122,8 +123,8 @@ def main():
 		input = f.readline()
 		paths = literal_eval(input)
 	for _path in paths:
-                path = generate_path(1000, _path, source)
-                print(path)
+		path = generate_path(1000, _path, source)
+		print(path)
 	# find_min_balance(source, target, path)
 
 
