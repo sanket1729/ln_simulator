@@ -38,7 +38,7 @@ def find_min_balance(source, target, path):
 		#get a random hash
 		payment_hash = secrets.token_hex(32)
 		# print(sendtoroute(payment_hash, "\'" + json.dumps(path) + "\'", chain = 'source_testnet'))
-		res = source.exec_run(sendtoroute(payment_hash, "\'" + json.dumps(path) + "\'"))
+		res = source.exec_run(sendtoroute(payment_hash, "\'" + json.dumps(path) + "\'", chain = 'source_testnet'))
 		assert get_attr(res, 'payment_error') != ""
 		assert get_attr(res, 'payment_preimage') == ""
 		if msg_reached(target, payment_hash):
@@ -55,12 +55,8 @@ def msg_reached(node, hash):
 	log = node.container.logs().decode('utf-8')
 	return (hash in log)
 
-def get_height():
-	num_nodes = 3
-	network = networkinitializer.setup(num_nodes, with_balance = True)
-	lnd_nodes = network.lnd_nodes
-	alice = lnd_nodes[0]
-	exec_res = alice.container.exec_run(getinfo())
+def get_height(source):
+	exec_res = source.exec_run(getinfo(chain='source_testnet'))
 	return int(json.loads(exec_res.output.decode('utf-8')).get('block_height'))
 
 def calc_fee(amt, fee_base_msat, fee_rate_milli_msat):
