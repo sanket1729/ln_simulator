@@ -39,6 +39,7 @@ def find_min_balance(source, target, path):
 		payment_hash = secrets.token_hex(32)
 		# print(sendtoroute(payment_hash, "\'" + json.dumps(path) + "\'", chain = 'source_testnet'))
 		res = source.exec_run(sendtoroute(payment_hash, "\'" + json.dumps(path) + "\'", chain = 'source_testnet'))
+
 		assert get_attr(res, 'payment_error') != ""
 		assert get_attr(res, 'payment_preimage') == ""
 		if msg_reached(target, payment_hash):
