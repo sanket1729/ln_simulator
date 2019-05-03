@@ -104,7 +104,7 @@ def generate_path(send_amt, path, source):
 		total_amt_msat += fee_msat
     
 	routes = {}
-	routes['total_time_lock'] = cltv + path[0][2]['fee_policy']['min_htlc']
+	routes['total_time_lock'] = cltv + int(path[0][2]['fee_policy']['min_htlc'])
 	routes['total_fees'] = total_fees_msat // milli
 	routes['total_amt'] = total_amt_msat // milli
 	routes['hops'] = hops
@@ -125,7 +125,7 @@ def main():
 	for _path in paths:
 		path = generate_path(1000, _path, source)
 		print(path)
-	# find_min_balance(source, target, path)
+		find_min_balance(source, target, path)
 
 
 if __name__ == "__main__":

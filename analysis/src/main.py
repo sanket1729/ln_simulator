@@ -166,7 +166,7 @@ def generate_path(send_amt, path):#, source):
     ret = {}
     ret['routes'] = routes
 
-    return ret
+    return json.dumps(ret, indent=4, sort_keys=True)
 
 def check_balance(balance, paths):
     for path in paths:
@@ -321,8 +321,8 @@ def build(dir, file):
     #     threshold, paths = find_path(channel)
     #     balance = find_balance(min(channel['capacity'], threshold), paths)
 
-    # num = 3
-    # get_path()
+    num = 3
+    get_path()
 
 testnet_file = '2019_5_2_8_42_5.json'
 build(testnet_dir, testnet_file)
