@@ -37,7 +37,8 @@ def find_min_balance(source, target, path):
 		#get a random hash
 		payment_hash = secrets.token_hex(32)
 		# print(sendtoroute(payment_hash, "\'" + json.dumps(path) + "\'", chain = 'source_testnet'))
-		res = source.exec_run(sendtoroute(payment_hash, "\'" + json.dumps(path) + "\'"))
+		res = source.exec_run(sendtoroute(payment_hash, "\'" + json.dumps(path) + "\'", chain = 'source_testnet'))
+		print(res)
 		assert get_attr(res, 'payment_error') != ""
 		assert get_attr(res, 'payment_preimage') == ""
 		if msg_reached(target, payment_hash):
@@ -50,7 +51,7 @@ def find_min_balance(source, target, path):
 	return
 
 def msg_reached(node, hash):
-	log = node.container.logs().decode('utf-8')
+	log = node.logs().decode('utf-8')
 	return (hash in log)
 
 
@@ -62,46 +63,46 @@ def main():
 
 """
 '{
-    "routes": [
-        {
-            "total_fees": "1",
-            "total_amt": "2",
-            "hops": [
-                {
-                    "chan_id": "359540302348288",
-                    "chan_capacity": "100000",
-                    "amt_to_forward": "1",
-                    "fee": "1",
-                    "expiry": 381,
-                    "amt_to_forward_msat": "1000",
-                    "fee_msat": "1000",
-                    "pub_key": "02d35cb4e7552382ba77f359e0590dad101c05ac746a0ab8bb6ada12b730bacf15"
-                },
-                {
-                    "chan_id": "359540302479360",
-                    "chan_capacity": "100000",
-                    "amt_to_forward": "1",
-                    "fee": "0",
-                    "expiry": 381,
-                    "amt_to_forward_msat": "1000",
-                    "fee_msat": "0",
-                    "pub_key": "02f8c14bdf90d49dae88c4573f7d70bfb2c4d3bc25401894fb08f4cfc565924d8b"
-                },
-                {
-                    "chan_id": "359540302413824",
-                    "chan_capacity": "100000",
-                    "amt_to_forward": "1",
-                    "fee": "0",
-                    "expiry": 381,
-                    "amt_to_forward_msat": "1000",
-                    "fee_msat": "0",
-                    "pub_key": "0217531a8acb54b2fad4215f318f82dea72976fbb7d8a600806bea5b97c8e5f84a"
-                }
-            ],
-            "total_fees_msat": "1000",
-            "total_amt_msat": "2000"
-        }
-    ]
+	"routes": [
+		{
+			"total_fees": "1",
+			"total_amt": "2",
+			"hops": [
+				{
+					"chan_id": "359540302348288",
+					"chan_capacity": "100000",
+					"amt_to_forward": "1",
+					"fee": "1",
+					"expiry": 381,
+					"amt_to_forward_msat": "1000",
+					"fee_msat": "1000",
+					"pub_key": "02d35cb4e7552382ba77f359e0590dad101c05ac746a0ab8bb6ada12b730bacf15"
+				},
+				{
+					"chan_id": "359540302479360",
+					"chan_capacity": "100000",
+					"amt_to_forward": "1",
+					"fee": "0",
+					"expiry": 381,
+					"amt_to_forward_msat": "1000",
+					"fee_msat": "0",
+					"pub_key": "02f8c14bdf90d49dae88c4573f7d70bfb2c4d3bc25401894fb08f4cfc565924d8b"
+				},
+				{
+					"chan_id": "359540302413824",
+					"chan_capacity": "100000",
+					"amt_to_forward": "1",
+					"fee": "0",
+					"expiry": 381,
+					"amt_to_forward_msat": "1000",
+					"fee_msat": "0",
+					"pub_key": "0217531a8acb54b2fad4215f318f82dea72976fbb7d8a600806bea5b97c8e5f84a"
+				}
+			],
+			"total_fees_msat": "1000",
+			"total_amt_msat": "2000"
+		}
+	]
 }'
 """
 
