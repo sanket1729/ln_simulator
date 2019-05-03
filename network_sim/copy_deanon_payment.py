@@ -63,25 +63,25 @@ def calc_fee(amt, fee_base_msat, fee_rate_milli_msat):
 	fee = fee_base_msat + (amt * fee_rate_milli_msat) // (milli ** 2)
 	return fee
 
-def generate_path(send_amt, path):
+def generate_path(send_amt, path, source):
 	hops = []
 
-	height = get_height()
+	height = get_height(source)
 	cltv = height
 	total_amt_msat = send_amt * milli
 	total_fees_msat = 0
 
 	i = 0
 	for edge in reversed(path):
-		u, v, attr = edge[2]
+		u, v, attr = edge
 
 		fee_policy = attr['fee_policy']
 
-		min_htlc = fee_policy['min_htlc']
+		min_htlc = int(fee_policy['min_htlc'])
 		cltv += min_htlc
 
-		fee_base_msat = fee_policy['fee_base_msat']
-		fee_rate_milli_msat = fee_policy['fee_rate_milli_msat']
+		fee_base_msat = int(fee_policy['fee_base_msat'])
+		fee_rate_milli_msat = int(fee_policy['fee_rate_milli_msat'])
 
 		fee_msat = 0
 		if i > 0:
@@ -105,24 +105,25 @@ def generate_path(send_amt, path):
 		total_amt_msat += total_fees_msat
 
 		i += 1
-
+    
 	routes = {}
 	routes['total_fees'] = total_fees_msat // milli
 	routes['total_amt'] = total_amt_msat // milli
 	routes['hops'] = hops
 	routes['total_fees_msat'] = total_fees_msat
 	routes['total_amt_msat'] = total_amt_msat
-
+    
 	return routes
 
 def main():
-	# source = get_source()
-	# target = get_target()
+	source = get_source()
+	target = get_target()
 	with open('../analysis/result/paths.txt', 'r') as f:
 		input = f.readline()
 		paths = literal_eval(input)
 	for _path in paths:
-		path = generate_path(_path)
+                path = generate_path(1000, _path, source)
+                print(path)
 	# find_min_balance(source, target, path)
 
 
