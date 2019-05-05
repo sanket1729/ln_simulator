@@ -58,3 +58,7 @@ def queryroutes(node_to, amt, chain = 'regtest'):
 def sendtoroute(payment_hash, routes, chain = 'regtest'):
 	context = get_context(chain)
 	return context['cmd'] + " sendtoroute --payment_hash=" + payment_hash + " --routes=" + routes
+
+def describegraph(chain = 'source_testnet'):
+	context = get_context(chain)
+	return context['cmd'] + " describegraph"
